@@ -3,7 +3,7 @@
 EverArk is an early experiment (Xahau testnet only). Do not use it to protect real value yet.
 
 ## Reporting a vulnerability
-Report privately, not in a public issue. Email the maintainer at security@kairovault.com with a description and,
+Report privately, not in a public issue. Email the maintainer at dane@kairovault.com with a description and,
 if possible, a reproduction. We aim to acknowledge within a few days. Please give us reasonable time to fix before
 any public disclosure.
 
