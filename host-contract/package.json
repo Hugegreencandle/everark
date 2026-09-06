@@ -1,0 +1,2 @@
+{ "name": "everark-shardstore", "version": "0.1.0", "main": "shardstore.js",
+  "dependencies": { "hotpocket-nodejs-contract": "*" } }

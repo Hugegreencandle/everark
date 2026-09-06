@@ -1,0 +1,32 @@
+{
+  "certificate_id": "KV-WE-2026-0906-003",
+  "kind": "independent verification of a software property (worked example, self-issued)",
+  "issued": "2026-09-06T05:39:32.657Z",
+  "subject": "EverArk MVP core — resurrection soundness + fail-closed integrity",
+  "repo": "~/Projects/everark @ 267f6fa88e45d627df504cdc4c5abe2b66322d68",
+  "verdict": "PROPERTY HOLDS (for the tested surface)",
+  "claim": "On the EverArk core at the pinned commit, resurrect() returns the exact anchored state or throws FAIL-CLOSED, and never a wrong/forged state, across the tested surface below. Erasure coding is MDS (any k of n reconstruct). GF(256) is exhaustively correct. Forgery of a different state under a fixed anchor requires a SHA-256 preimage.",
+  "evidence": {
+    "test_suite": "14/14 pass (node --test)",
+    "invariant_test": "resurrect returns the true canonical state or throws — never a third value (adversarial battery)",
+    "erasure_mds": "exhaustive C(n,k) subset recovery + n=255/k=254 drop-one, 0 mismatches",
+    "gf256_field": "0/65536 multiply mismatches, 0 divide, 0 EXP/LOG inverse errors vs a carryless-mul reference",
+    "manifest_binding": "every manifest field bound under the 74-byte anchor (manifest_hash); all field swaps fail-closed",
+    "review": "2 red-team lanes (crypto/erasure + fail-closed) + 1 refutation pass; all findings CLOSED (F1 lossy canon, blk DoS, shape validation, sparse arrays, tiny-decode, duplicate shards, deep-nest)"
+  },
+  "out_of_scope": [
+    "Verifies the OFFLINE CORE only: commitment, erasure coding, encryption, anchor binding, fail-closed resurrect. NOT the live Evernode host cluster, NPL, EVR self-funding, or the on-chain Xahau anchor write (deploy-ladder rungs 2-3, not built).",
+    "Key custody is out of scope (spec §7 open frontier): shards are useless without the secret; how the secret survives is not certified here.",
+    "Data AVAILABILITY (that >=k shards exist when needed) is an economic/operational property, not certified; only INTEGRITY (a recovered state is correct) is.",
+    "Bounded to the tested inputs + the reviewed code path; a proof for ALL inputs would require formal verification, not a test suite.",
+    "Self-issued by KVT over its own build, signed with a SAMPLE key (not the production attester). A worked example of the artifact, not a third-party engagement."
+  ],
+  "attestation": {
+    "alg": "Ed25519",
+    "kid": "kvt-sample-swverify:12f83eb7935116ca",
+    "public_key_spki_hex": "302A300506032B6570032100120F5D5241297558128DC71207CC3FD1E072C93841715E88FD4A6F1013A3BFA9",
+    "payload_sha256": "A6212BEA8F332CABB4E8DBA5355B2E11FC6FAFE2FB9E87F2E66BF8D56E1A1A41",
+    "signature": "26FEB3DF66F31048B95BD29CA0BF18363DC197954A7956C7549056D1B3364EE081E37A3BA9D1A764A3BAF51B10FB19B41774AE351BEE488B98AEDF0907EC880B",
+    "note": "SAMPLE key, not the production attester"
+  }
+}

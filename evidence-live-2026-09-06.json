@@ -1,0 +1,16 @@
+{
+  "anchorTx": "3863079E879DD00DD5970D14F1A53E059DA68B17F332A82F2CA4B655877EC12F",
+  "anchorLedger": 12078860,
+  "root": "4b75cd0fe106cb1a98c5d4452a73b3a76538eada8adae3e3bce1b9f747368d36",
+  "killed": [
+    1,
+    2,
+    5
+  ],
+  "survivors": [
+    3,
+    4,
+    6
+  ],
+  "byteExact": true
+}

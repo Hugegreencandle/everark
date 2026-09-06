@@ -1,0 +1,44 @@
+{
+  "name": "everark",
+  "version": "0.1.0",
+  "description": "Immortal state + resurrection for Evernode dApps: erasure-code encrypted state into n shards (any k recover), anchor a compact root on Xahau, resurrect byte-exact after total death. Early experiment, testnet only.",
+  "main": "src/everark-core.mjs",
+  "type": "commonjs",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "demo": "node demo/resurrect-demo.mjs"
+  },
+  "keywords": [
+    "evernode",
+    "xahau",
+    "erasure-coding",
+    "reed-solomon",
+    "resurrection",
+    "state-anchor"
+  ],
+  "author": "Kairo Vault Technologies 合同会社",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "hotpocket-js-client": "^0.5.7",
+    "xahau": "^4.1.1"
+  },
+  "bin": {
+    "everark": "bin/everark.mjs"
+  },
+  "types": "index.d.ts",
+  "files": [
+    "src/",
+    "bin/",
+    "index.d.ts",
+    "WIRE_FORMAT.md",
+    "README.md",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "engines": {
+    "node": ">=18"
+  }
+}
