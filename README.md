@@ -4,6 +4,8 @@ Immortal state + resurrection for Evernode dApps. Erasure-code a dApp's encrypte
 (any k of n recover), anchor a 74-byte root on Xahau, resurrect byte-exact after total death, fail-closed
 against forged, tampered, or insufficient inputs.
 
+![EverArk resurrection demo: a dApp is checkpointed, every instance and 3 of 6 shards are destroyed, and it rebuilds byte-exact from the anchor](media/everark-demo.gif)
+
 ## Status & scope (read this)
 Early experiment, not a product. Proven on **Xahau testnet only** (not mainnet). The live demo splits the
 state into shards held as **local files** and destroys some before resurrecting; putting those shards on
