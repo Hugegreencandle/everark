@@ -3,8 +3,11 @@
 // Idea: @scotty2ten (2026-09-07). The anchor then lives ON the account object and is directly
 // queryable via ledger_entry / account_objects — no transaction-history hunt to find it.
 //
-// The remark is set IMMUTABLE (per-remark Flags = 1). A mutable anchor would defeat the whole
-// point (someone could rewrite it), so immutability is required, not optional. Because an
+// The remark is set IMMUTABLE (per-remark Flags = 1 / tfImmutable). A mutable anchor would defeat
+// the whole point (someone could rewrite it), so immutability is required, not optional. The
+// xahaud transactor enforces this: an attempt to mutate OR delete an immutable remark returns
+// tecIMMUTABLE, and only the object owner may write (issuer == Account for ltACCOUNT_ROOT, else
+// tecNO_PERMISSION) — verified in Xahau/xahaud src/xrpld/app/tx/detail/SetRemarks.cpp. Because an
 // immutable remark can never be changed or removed, a re-checkpoint must use a NEW RemarkName
 // (e.g. everark:<epoch>) rather than overwriting — set EVERARK_REMARK_NAME per checkpoint if you
 // rotate. See ROADMAP #7 (rotation).
