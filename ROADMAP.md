@@ -1,8 +1,16 @@
 # EverArk — roadmap (ways to make the release more useful)
 
 **Shipped in v0.2 (2026-09-07):** CLI (#1), anchor version byte + `WIRE_FORMAT.md` (#3), consumer helper
-`equalsState` + TypeScript `index.d.ts` (#4), and the total-size cap (#5). Item #2 (independent-host custody)
-stays blocked on a liquid Evernode host market; its harness is in `scripts/`.
+`equalsState` + TypeScript `index.d.ts` (#4), and the total-size cap (#5).
+
+**Item #2 (independent-host custody) — CLOSED 2026-09-07.** Proven: EverArk rebuilt a live application's
+state **byte-for-byte** from a k=3-of-n subset of shards held on genuinely independent, third-party Evernode
+hosts (GB/NZ/AU/US), after the other hosts were gone. Recovered canonical root == anchored root
+(`f33f03b2…8e4ffa39`), and the 75-byte anchor is on **Xahau mainnet** (tx
+`9D0D2679B4F2B21FFDD52B025C5EB19F65A776EEDCD0048351B69658796C1924`, ledger 25621999) so anyone can
+re-check it without trusting the author. Harness: `scripts/deploy-shards.mjs`, `scripts/acquire-cluster.mjs`,
+`scripts/resurrect-from-hosts.mjs`, `scripts/anchor-onchain.mjs`. Worked example / cert:
+`certificate/KVT-Cert-EverArk-Distributed-2026-09-07.html`; run log: `DISTRIBUTED_RUN_2026-09-07.md`.
 
 
 Reviewed by an internal panel before publishing. Ranked by adoption impact vs effort. This is an early
@@ -11,9 +19,11 @@ experiment (testnet only); the items below are what would turn it into something
 ## High impact
 1. **A tiny CLI.** `everark checkpoint <state.json> --k 3 --n 6` and `everark resurrect <anchor> <dir>` so
    people can use it without writing a line of code. Biggest adoption lever for a primitive like this.
-2. **Genuine independent-host custody (the headline).** The parked rung: shards on genuinely independent
-   rented Evernode hosts, resurrected after killing a subset. This is the whole promise ("survives total
-   death") and the demo that makes it real. Needs a liquid host market (everhostx offered only one host).
+2. **✅ Genuine independent-host custody (the headline) — DONE 2026-09-07.** Shards on genuinely independent
+   rented Evernode hosts, resurrected byte-exact after losing a subset (k=3 of n, 4 of 6 hosts served). This
+   was the whole promise ("survives total death"); it is now proven and mainnet-anchored (see the CLOSED note
+   at the top). The earlier blocker (everhostx offered only one host) was solved by acquiring a real
+   independent cluster.
 3. **Anchor version byte + a written wire-format spec.** Add a version to the 74-byte anchor and document the
    exact layout so the format can evolve and third parties can implement compatible readers. Cheap, and it is
    the difference between "a script" and "a format others adopt."

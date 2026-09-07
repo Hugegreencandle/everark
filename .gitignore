@@ -9,3 +9,4 @@ john-hosts.txt
 host-contract/hp.cfg.override
 host-contract/install.sh
 bundle/
+.DS_Store
