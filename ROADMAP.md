@@ -49,6 +49,10 @@ experiment (testnet only); the items below are what would turn it into something
    - ★★ **URIToken variant (@scotty2ten):** mint a URIToken as the vault's identity and store the 74 bytes as an
      immutable remark ON the token. The anchor then travels with the token, so a checkpoint or a whole lineage
      becomes a transferable object — and it dovetails with the M16 graveyard idea (death mints a URIToken).
+     **✅ Built 2026-09-07: `scripts/anchor-uritoken.mjs`** — mints a URIToken (URI `everark:vault`), takes the
+     token's ledger index from the mint tx meta (chain-derived), then writes the anchor as an immutable remark
+     on that token; reads it back off `account_objects`. Encode/sign self-tested (URITokenMint type 45 +
+     SetRemarks roundtrip preserve URI + 75B value + immutable flag); not yet live-run on mainnet.
 7. **Rotation / re-checkpoint helper.** A helper to re-shard and re-anchor as state grows or membership
    changes, with the old anchor superseded — the real lifecycle of a long-lived dApp.
 
@@ -56,6 +60,14 @@ experiment (testnet only); the items below are what would turn it into something
 8. **Streaming for large state** (state bigger than `k*blk` fits in memory) + a wider length header if ever needed.
 9. **Reference HotPocket integration** showing a real Evernode contract checkpointing itself on a schedule and
    resurrecting on redeploy — the "contract that pays its rent can also come back from the dead" story, end to end.
+   **✅ Engine + local proof built 2026-09-07.** `src/selfark.mjs` (boot / tick / checkpointSelf / resurrectSelf,
+   fail-closed), `host-contract/selfark.mjs` (HotPocket wrapper, deploy skeleton), `demo/self-resurrect-demo.mjs`
+   (runs the contract, self-checkpoints every 5 rounds, WIPES the host + destroys 3 of 6 shard holders, then a
+   fresh boot resurrects the contract ITSELF byte-exact — no operator restore), `test/selfark.test.mjs` (9/9,
+   incl. fail-closed on too-few-shards / wrong-secret / no-anchor, and the "recovers to last checkpoint" loss
+   window). **Open for the live tier:** off-host shard custody (Q1 — shards must live on independent hosts +
+   the anchor on-chain, not the host's own disk), the data-key custody problem (Q2, unsolved — operator-supplied
+   for now), and multi-node checkpoint determinism (Q5). Spec: `HQ/Future-Projects/EverArk_SelfCheckpointing_Contract_Spec_2026-09-07.md`.
 10. **Shard custody proofs.** Have each host periodically prove it still holds its shard (a challenge-response),
     so you learn a shard is gone before you need it.
 

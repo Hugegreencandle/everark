@@ -21,6 +21,12 @@ earlier testnet demo splits shards as local files. Details + reproducibility: ce
 
 Run: `node --test test/everark.test.mjs` · `node demo/resurrect-demo.mjs`
 
+**Self-checkpointing contract (roadmap #9):** `node demo/self-resurrect-demo.mjs` runs a contract that
+checkpoints its OWN state every few rounds, then wipes the host and destroys most shard holders — and a fresh
+boot resurrects the contract itself, byte-exact, with no operator restore. Engine `src/selfark.mjs`, HotPocket
+wrapper `host-contract/selfark.mjs` (deploy skeleton), tests `test/selfark.test.mjs`. Open for the live tier:
+off-host shard custody and the data-key custody problem.
+
 ## Live demo (Xahau testnet)
 `node scripts/live-resurrect.mjs` — checkpoints a dApp, writes the 74-byte anchor on-chain (real tx), kills all instances + n-k hosts, then resurrects byte-exact by reading the anchor BACK FROM THE CHAIN. Latest testnet run: anchor tx `3863079E879DD00DD5970D14F1A53E059DA68B17F332A82F2CA4B655877EC12F` @ ledger 12078860, byte-exact YES.
 
