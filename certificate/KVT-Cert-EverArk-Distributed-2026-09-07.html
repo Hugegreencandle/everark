@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KVT Cert — EverArk Distributed Resurrection</title>
+<style>
+  :root{--paper:#faf7f0;--paper2:#f3eee1;--panel:#f6f2e6;--ink:#1c2a3a;--ink2:#3c4a5c;--muted:#6b6350;
+    --teal:#0e7c66;--teal-d:#0a5f4e;--bronze:#9a7a45;--bronze-d:#7c6238;--line:#d9cfb8;--red:#a23b2f;
+    --serif:"Iowan Old Style","Palatino Linotype","Book Antiqua",Palatino,Georgia,serif;
+    --sans:-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+  body{margin:0;background:#efe9db;color:var(--ink);font:14px/1.55 var(--sans)}
+  .frame{max-width:820px;margin:24px auto;border:2px solid var(--bronze);border-radius:4px;padding:5px;position:relative}
+  .frame::before{content:"";position:absolute;inset:5px;border:1px solid var(--line);border-radius:3px;pointer-events:none}
+  .sheet{background:var(--paper);padding:38px 44px;box-shadow:0 2px 16px rgba(0,0,0,.12)}
+  .top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px}
+  .kick{font:600 11px var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--bronze-d)}
+  h1{font:600 27px/1.15 var(--serif);margin:.3em 0 .1em}
+  .sub{color:var(--ink2);font:400 15px/1.5 var(--serif)}
+  .seal{width:88px;height:88px;flex:none;border:2px solid var(--bronze);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative}
+  .seal::before{content:"";position:absolute;inset:6px;border:1px dashed var(--bronze);border-radius:50%}
+  .seal .disc{width:52px;height:52px;border-radius:50%;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font-size:26px}
+  h2{font:600 12px var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--bronze-d);border-bottom:1px solid var(--line);padding-bottom:5px;margin:26px 0 12px}
+  .verdict{display:flex;align-items:center;gap:18px;border-left:5px solid var(--teal);background:linear-gradient(90deg,#e8f4f0,#f6f2e6);padding:14px 18px;border-radius:3px;margin:16px 0}
+  .verdict .big{font:600 22px var(--serif);color:var(--teal-d);white-space:nowrap}
+  ul.check{list-style:none;padding:0;margin:0}
+  ul.check li{padding:7px 0 7px 26px;border-bottom:1px solid var(--line);position:relative}
+  ul.check li::before{content:"✓";position:absolute;left:0;color:var(--teal);font-weight:700}
+  ul.check b{color:var(--ink)} ul.check span{color:var(--muted)}
+  .mono{font-family:var(--mono);word-break:break-all;color:var(--teal-d);font-size:12px}
+  .box{background:#fbf5ec;border:1px solid var(--line);border-radius:4px;padding:14px 18px;margin:18px 0}
+  .box .lbl{color:var(--red);font:600 11px var(--sans);letter-spacing:.12em;text-transform:uppercase}
+  .repro{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:12px 14px;font-family:var(--mono);font-size:12px;color:var(--ink2);white-space:pre-wrap;word-break:break-all}
+  .att{display:flex;justify-content:space-between;gap:24px;margin-top:24px;flex-wrap:wrap}
+  .att .who{max-width:52%} .sig{font:600 20px var(--serif);color:var(--ink);border-bottom:1px solid var(--line);padding-bottom:4px;display:inline-block}
+  footer{text-align:center;color:var(--muted);font-size:12px;margin-top:26px;border-top:1px solid var(--line);padding-top:12px}
+  table{border-collapse:collapse;width:100%;font-size:13px}td{padding:5px 8px;border-bottom:1px solid var(--line)}
+</style></head>
+<body><div class="frame"><div class="sheet">
+
+  <div class="top">
+    <div>
+      <div class="kick">Kairo Vault Technologies · Independent Verification &amp; Attestation</div>
+      <h1>EverArk — Distributed Resurrection</h1>
+      <div class="sub">Byte-exact state recovery from independent Evernode hosts after host loss.</div>
+    </div>
+    <div class="seal"><div class="disc">✓</div></div>
+  </div>
+
+  <div class="verdict">
+    <div class="big">byte-exact ✓</div>
+    <div>EverArk rebuilt a live application's state <b>byte-for-byte</b> from a k-of-n subset of shards held on
+    genuinely independent, third-party Evernode hosts, after the remaining hosts were gone. The recovered state's
+    canonical root equals the anchored root.</div>
+  </div>
+
+  <h2>What was verified</h2>
+  <ul class="check">
+    <li><b>State checkpointed, encrypted, erasure-coded</b> <span>— AES-256-GCM, Reed-Solomon k=3 of n=6, under a 75-byte anchor.</span></li>
+    <li><b>Shards distributed to independent operators</b> <span>— one shard each to Evernode hosts in 6 countries (CA, GB, NZ, AU, US, IE).</span></li>
+    <li><b>Survived host loss</b> <span>— rebuilt from the 4 hosts that served (any 3 sufficient); the rest were unavailable.</span></li>
+    <li><b>Byte-exact</b> <span>— recovered canonical root == anchored root.</span></li>
+  </ul>
+
+  <h2>Evidence</h2>
+  <table>
+    <tr><td>Run</td><td>2026-09-07 · Xahau mainnet Evernode hosts (evdevkit 0.7.22, hpVersion 0.6.4)</td></tr>
+    <tr><td>Hosts served</td><td>evr001.blocknodes.uk (GB), evernode.onledger.net (NZ), xahau.taylor.nu (AU), evernode11.infoevernode.xyz (US)</td></tr>
+    <tr><td>Anchored root</td><td><span class="mono">f33f03b2baf79d66b418b11c081d08fa275743792c612a7571fb48c98e4ffa39</span></td></tr>
+    <tr><td>Revived root</td><td><span class="mono">f33f03b2baf79d66b418b11c081d08fa275743792c612a7571fb48c98e4ffa39</span></td></tr>
+  </table>
+
+  <div class="box">
+    <div class="lbl">Scope &amp; limitations — part of this certificate</div>
+    <p style="margin:.5em 0 0">Worked example, <b>self-issued</b> by the author — not a paid third-party audit. The
+    hosts are independent by distinct operator, domain, and country; independence is not attested beyond that. The
+    run used short paid EVR leases; 4 of 6 hosts served (one held a test contract, one was unreachable), which
+    satisfies the k=3 threshold. Demo application state and a sample data key were used. The anchor was held locally
+    for this run; on-chain anchoring of the 74/75-byte root is demonstrated separately (Xahau testnet tx
+    3863079E…C12F). "Byte-exact" means canonical-form exact.</p>
+  </div>
+
+  <h2>Reproduce this result</h2>
+  <div class="repro">node scripts/deploy-shards.mjs        # checkpoint + deploy shard_i to host_i
+node scripts/resurrect-from-hosts.mjs # pull k-of-n shards + anchor, rebuild
+# byte-exact: YES  (anchored root == revived root)
+# repo: github.com/Hugegreencandle/everark · evidence: DISTRIBUTED_RUN_2026-09-07.md</div>
+
+  <div class="att">
+    <div class="who">
+      <div class="sig">Dane Brown</div>
+      <div style="color:var(--muted);font-size:12px;margin-top:4px">Representative Member, Kairo Vault Technologies 合同会社</div>
+      <div class="mono" style="margin-top:6px">kid kvt-attester-1</div>
+    </div>
+    <div style="text-align:right;color:var(--muted);font-size:12px">
+      Certificate <b>KV-WE-2026-0907-001</b><br>Issued 2026-09-07
+    </div>
+  </div>
+
+  <footer>Kairo Vault Technologies 合同会社 · Independent Verification &amp; Attestation · kairovault.com · Certificate KV-WE-2026-0907-001</footer>
+
+</div></div></body></html>
