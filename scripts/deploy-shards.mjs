@@ -34,10 +34,15 @@ for (const o of orders) {
   console.log(`\nhost ${o.ip}:${o.port} <- shard x=${o.x} (${s.bytes.length}B)`);
   // Real evdevkit CLI: bundle(contract-dir, instance-pubkey, bin) -> deploy(bundle, ip, port) with EV_USER_PRIVATE_KEY.
   try {
-    const bundleOut = execFileSync('evdevkit', ['bundle', dir, o.instancePubKey, 'shardstore.js'], { encoding: 'utf8' });
-    const bundlePath = (bundleOut.match(/(\/\S+\.(?:tar|zip|bundle)\S*)/) || [])[1] || bundleOut.trim().split('\n').slice(-1)[0];
+    // bin_path MUST be the node executable (/usr/bin/node); the script is a contract-arg. Passing the .js as
+    // the contract-bin makes HotPocket try to exec the script directly -> BinaryNotFound / contract never runs.
+    const bundleOut = execFileSync('evdevkit', ['bundle', dir, o.instancePubKey, '/usr/bin/node', '-a', 'shardstore.js'], { encoding: 'utf8' });
+    const clean = bundleOut.replace(/\x1b\[[0-9;]*m/g, '');
+    const bundlePath = (clean.match(/location:\s*(\S+\.zip)/) || clean.match(/(\/\S+\.(?:zip|tar\S*|bundle))/) || [])[1];
+    if (!bundlePath) throw new Error('could not find bundle path in: ' + clean.trim().split('\n').slice(-1)[0]);
     const out = execFileSync('evdevkit', ['deploy', bundlePath, o.ip, String(o.port)], { encoding: 'utf8', env: { ...process.env, EV_USER_PRIVATE_KEY: o.userPrivKey } });
-    console.log('  deployed:', out.trim().split('\n').slice(-1)[0]);
-  } catch (e) { console.log('  DEPLOY step needs a real host — CLI:', `evdevkit bundle ${dir} <instancePubKey> shardstore.js && evdevkit deploy <bundle> ${o.ip||'<ip>'} ${o.port||'<port>'}`); }
+    const line = out.replace(/\x1b\[[0-9;]*m/g, '').trim().split('\n').filter(Boolean).slice(-2).join(' | ');
+    console.log('  deployed:', line);
+  } catch (e) { console.log('  DEPLOY FAILED:', (e.stdout || e.message || '').replace(/\x1b\[[0-9;]*m/g, '').trim().split('\n').slice(-2).join(' | ')); }
 }
 console.log('\nNext: anchor the printed hex on-chain, then scripts/resurrect-from-hosts.mjs reads shards from the 3 hosts + anchor from chain.');
