@@ -29,7 +29,7 @@
   .box .lbl{color:var(--red);font:600 11px var(--sans);letter-spacing:.12em;text-transform:uppercase}
   .repro{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:12px 14px;font-family:var(--mono);font-size:12px;color:var(--ink2);white-space:pre-wrap;word-break:break-all}
   .att{display:flex;justify-content:space-between;gap:24px;margin-top:24px;flex-wrap:wrap}
-  .att .who{max-width:52%} .sig{font:600 20px var(--serif);color:var(--ink);border-bottom:1px solid var(--line);padding-bottom:4px;display:inline-block}
+  .att .who{max-width:64%} .sig{font:600 20px var(--serif);color:var(--ink);border-bottom:1px solid var(--line);padding-bottom:4px;display:inline-block}
   footer{text-align:center;color:var(--muted);font-size:12px;margin-top:26px;border-top:1px solid var(--line);padding-top:12px}
   table{border-collapse:collapse;width:100%;font-size:13px}td{padding:5px 8px;border-bottom:1px solid var(--line)}
 </style></head>
@@ -65,6 +65,7 @@
     <tr><td>Hosts served</td><td>evr001.blocknodes.uk (GB), evernode.onledger.net (NZ), xahau.taylor.nu (AU), evernode11.infoevernode.xyz (US)</td></tr>
     <tr><td>Anchored root</td><td><span class="mono">f33f03b2baf79d66b418b11c081d08fa275743792c612a7571fb48c98e4ffa39</span></td></tr>
     <tr><td>Revived root</td><td><span class="mono">f33f03b2baf79d66b418b11c081d08fa275743792c612a7571fb48c98e4ffa39</span></td></tr>
+    <tr><td>On-chain anchor</td><td>Xahau <b>mainnet</b> tx <span class="mono">9D0D2679B4F2B21FFDD52B025C5EB19F65A776EEDCD0048351B69658796C1924</span> (ledger 25621999) — the 75-byte root as a public memo</td></tr>
   </table>
 
   <div class="box">
@@ -72,9 +73,9 @@
     <p style="margin:.5em 0 0">Worked example, <b>self-issued</b> by the author — not a paid third-party audit. The
     hosts are independent by distinct operator, domain, and country; independence is not attested beyond that. The
     run used short paid EVR leases; 4 of 6 hosts served (one held a test contract, one was unreachable), which
-    satisfies the k=3 threshold. Demo application state and a sample data key were used. The anchor was held locally
-    for this run; on-chain anchoring of the 74/75-byte root is demonstrated separately (Xahau testnet tx
-    3863079E…C12F). "Byte-exact" means canonical-form exact.</p>
+    satisfies the k=3 threshold. Demo application state and a sample data key were used. The 75-byte anchor for this run is
+    written on Xahau mainnet (tx 9D0D2679…C1924) as a public memo, so anyone can read it and reproduce the
+    byte-exact match without trusting the author. "Byte-exact" means canonical-form exact.</p>
   </div>
 
   <h2>Reproduce this result</h2>
@@ -86,14 +87,14 @@ node scripts/resurrect-from-hosts.mjs # pull k-of-n shards + anchor, rebuild
   <div class="att">
     <div class="who">
       <div class="sig">Dane Brown</div>
-      <div style="color:var(--muted);font-size:12px;margin-top:4px">Representative Member, Kairo Vault Technologies 合同会社</div>
+      <div style="color:var(--muted);font-size:12px;margin-top:4px">Representative Member, <span style="white-space:nowrap">Kairo Vault Technologies 合同会社</span></div>
       <div class="mono" style="margin-top:6px">kid kvt-attester-1</div>
     </div>
     <div style="text-align:right;color:var(--muted);font-size:12px">
-      Certificate <b>KV-WE-2026-0907-001</b><br>Issued 2026-09-07
+      <span style="white-space:nowrap">Certificate <b>KV-WE-2026-0907-001</b></span><br>Issued 2026-09-07
     </div>
   </div>
 
-  <footer>Kairo Vault Technologies 合同会社 · Independent Verification &amp; Attestation · kairovault.com · Certificate KV-WE-2026-0907-001</footer>
+  <footer>Kairo Vault Technologies 合同会社 · Independent Verification &amp; Attestation · kairovault.com · <span style="white-space:nowrap">Certificate KV-WE-2026-0907-001</span></footer>
 
 </div></div></body></html>
