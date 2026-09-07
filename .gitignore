@@ -2,3 +2,7 @@ node_modules/
 everark-out/
 /tmp/
 .letta/
+orders.json
+checkpoint-anchor.hex
+checkpoint-manifest.json
+john-hosts.txt
