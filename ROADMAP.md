@@ -25,6 +25,13 @@ experiment (testnet only); the items below are what would turn it into something
    suspenders; see RT-prepublish residual #1).
 6. **Pluggable anchor backend.** The anchor is 74 opaque bytes; let it be written to any chain memo, not just
    Xahau. Broadens reach to XRPL, and anywhere with an immutable 74-byte sink.
+   - ★ **Store it as an immutable Xahau Remark (`SetRemarks`)** rather than an AccountSet memo (idea from
+     @scotty2ten, 2026-09-07): the anchor then lives ON the account/object and is directly queryable, no tx
+     hunt. Must set the remark immutable, or a mutable anchor defeats the tamper-evidence. Hook State is the
+     other on-object option. This is the better default anchor home for a real deployment.
+   - ★★ **URIToken variant (@scotty2ten):** mint a URIToken as the vault's identity and store the 74 bytes as an
+     immutable remark ON the token. The anchor then travels with the token, so a checkpoint or a whole lineage
+     becomes a transferable object — and it dovetails with the M16 graveyard idea (death mints a URIToken).
 7. **Rotation / re-checkpoint helper.** A helper to re-shard and re-anchor as state grows or membership
    changes, with the old anchor superseded — the real lifecycle of a long-lived dApp.
 

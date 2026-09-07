@@ -6,3 +6,6 @@ orders.json
 checkpoint-anchor.hex
 checkpoint-manifest.json
 john-hosts.txt
+host-contract/hp.cfg.override
+host-contract/install.sh
+bundle/
