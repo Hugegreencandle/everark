@@ -39,10 +39,13 @@ experiment (testnet only); the items below are what would turn it into something
      @scotty2ten, 2026-09-07): the anchor then lives ON the account/object and is directly queryable, no tx
      hunt. Must set the remark immutable, or a mutable anchor defeats the tamper-evidence. Hook State is the
      other on-object option. This is the better default anchor home for a real deployment.
-     **✅ Built 2026-09-07: `scripts/anchor-remark.mjs`** — writes the 74/75-byte root as an immutable remark
-     (per-remark `Flags: 1`) on the tenant's Account Root; `ObjectID` is the account-root index read from
-     chain (no hand-derived keylet); reads the remark back to confirm the value matches. Because an immutable
-     remark can't be overwritten, a re-checkpoint uses a new `RemarkName` (`EVERARK_REMARK_NAME`, see #7).
+     **✅ Built + demonstrated live 2026-09-07: `scripts/anchor-remark.mjs`** — writes the 74/75-byte root as
+     an immutable remark (per-remark `Flags: 1`) on the tenant's Account Root; `ObjectID` is the account-root
+     index read from chain (no hand-derived keylet); reads the remark back to confirm the value matches.
+     Run live on **Xahau mainnet** (tx `0C2C2E9B3EE12B9FD233695B3805579CB7CF0B76804F43329023CF025617270B`,
+     ledger 25627234): the distributed-run root now lives as an immutable, `ledger_entry`-queryable remark on
+     the account, alongside its AccountSet-memo anchor. Because an immutable remark can't be overwritten, a
+     re-checkpoint uses a new `RemarkName` (`EVERARK_REMARK_NAME`, see #7).
    - ★★ **URIToken variant (@scotty2ten):** mint a URIToken as the vault's identity and store the 74 bytes as an
      immutable remark ON the token. The anchor then travels with the token, so a checkpoint or a whole lineage
      becomes a transferable object — and it dovetails with the M16 graveyard idea (death mints a URIToken).
