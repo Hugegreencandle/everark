@@ -25,7 +25,7 @@ async function pullShard(host) {
 }
 
 const survivors = [];
-for (const o of orders) { try { survivors.push(await pullShard(o.host)); console.log('pulled shard x=' + o.x + ' from ' + o.host); } catch (e) { console.log('host ' + o.host + ' unreachable:', e.message); } }
+for (const o of orders) { const ep = o.host || `${o.ip}:${o.port}`; try { survivors.push(await pullShard(ep)); console.log('pulled shard x=' + o.x + ' from ' + ep); } catch (e) { console.log('host ' + ep + ' unreachable:', e.message); } }
 const revived = resurrect(anchor, manifest, survivors, secret);
 const exact = stateRoot(revived).equals(anchor.subarray(0, 32));
 console.log('\nRESURRECTED from independent hosts:', JSON.stringify(revived));
