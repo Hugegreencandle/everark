@@ -3,6 +3,7 @@
 // binding under a 74-byte on-chain anchor, and FAIL-CLOSED resurrection. Offline + deterministic.
 // No live hosts (deploy-ladder rung 3). Spec: the EverArk design spec (internal)
 import { createHash, randomBytes, createCipheriv, createDecipheriv } from 'node:crypto';
+import { siv } from '@noble/ciphers/aes';   // AES-256-GCM-SIV (RFC 8452) for deterministic (v2) checkpoints
 
 export const H = (b) => createHash('sha256').update(b).digest();
 export const hx = (b) => Buffer.from(b).toString('hex');
@@ -12,8 +13,12 @@ const MAX_TOTAL = 64 * 1024 * 1024;          // cap on n*blk recovery footprint 
 // Anchor wire format (see WIRE_FORMAT.md):
 //   v0 (legacy, 74B): root(32) | manifest_hash(32) | epoch(8 BE) | k(1) | n(1)
 //   v1 (current, 75B): 0x01 | <the v0 body>          -- a leading version byte for forward-compat
+//   v2 (75B):          0x02 | <the v0 body>          -- same layout, but DETERMINISTIC AEAD (GCM-SIV)
+//                                                       encryption instead of random-nonce GCM (for #9,
+//                                                       so a replicated cluster produces an identical anchor)
 export const CURRENT_ANCHOR_VERSION = 1;
-const ANCHOR_V0_LEN = 74, ANCHOR_V1_LEN = 75;
+export const DETERMINISTIC_ANCHOR_VERSION = 2;
+const ANCHOR_V0_LEN = 74, ANCHOR_V1_LEN = 75, ANCHOR_V2_LEN = 75;
 
 // Compare two states for EverArk-equality: same canonical form (object key order is normalized, so this
 // is the right check — raw JSON.stringify order is NOT). Use this instead of ===/JSON string compare.
@@ -129,6 +134,25 @@ export function decryptState(cipher, secret) {
   return Buffer.concat([d.update(cipher.subarray(28)), d.final()]);
 }
 
+// ---- DETERMINISTIC AEAD (anchor v2) — for replicated / self-checkpointing use (#9) --------------------
+// Every node must produce byte-identical checkpoints or the cluster can't agree on one anchor. So the
+// encrypt step must be deterministic. We use AES-256-GCM-SIV (RFC 8452, nonce-misuse-resistant) with a
+// nonce derived from (epoch, state root): identical across nodes, and unique per checkpoint because the
+// root changes whenever the state does. Misuse-resistance means an accidental nonce repeat leaks only
+// whether two checkpoints were byte-equal (public anyway) rather than GCM's catastrophic key recovery.
+const u64be = (epoch) => { const b = Buffer.alloc(8); b.writeBigUInt64BE(BigInt(epoch)); return b; };
+const detNonce = (epoch, root) => H(Buffer.concat([Buffer.from('everark-ckpt-v1'), u64be(epoch), root])).subarray(0, 12);
+const detAAD = (epoch, root) => Buffer.concat([u64be(epoch), root]);
+export function encryptStateDet(bytes, secret, epoch, root) {
+  const key = normKey(secret);
+  return Buffer.from(siv(key, detNonce(epoch, root), detAAD(epoch, root)).encrypt(bytes));  // ct||tag(16)
+}
+export function decryptStateDet(cipher, secret, epoch, root) {
+  const key = normKey(secret);
+  if (!Buffer.isBuffer(cipher) || cipher.length < 16) fc('cipher too short');
+  return Buffer.from(siv(key, detNonce(epoch, root), detAAD(epoch, root)).decrypt(cipher));
+}
+
 // ---- shard digest binds the x-coordinate + bytes (F3: x is now cryptographically bound) ----
 const shardDigest = (x, bytes) => H(Buffer.concat([Buffer.from([x]), bytes]));
 // ---- manifest hash binds EVERY manifest field (defense-in-depth, not a single backstop) ----
@@ -140,9 +164,11 @@ function manifestHash(m) {
 // version 1 (default) prepends a version byte -> 75-byte anchor; version 0 emits the legacy 74-byte anchor.
 export function checkpoint(state, secret, k, n, epoch = 1, { version = CURRENT_ANCHOR_VERSION } = {}) {
   if (!Number.isInteger(k) || !Number.isInteger(n) || k < 1 || n < k || n > MAX_N) throw new Error('bad k/n');
-  if (version !== 0 && version !== 1) throw new Error('bad anchor version');
+  if (version !== 0 && version !== 1 && version !== 2) throw new Error('bad anchor version');
   const bytes = canon(state), root = H(bytes);
-  const cipher = encryptState(bytes, secret), cipherHash = H(cipher);
+  // v2 = deterministic AEAD (replicated/self-checkpointing); v0/v1 = legacy random-nonce GCM.
+  const cipher = version === 2 ? encryptStateDet(bytes, secret, epoch, root) : encryptState(bytes, secret);
+  const cipherHash = H(cipher);
   const shards = rsEncode(cipher, k, n);
   const manifest = {
     epoch, root: hx(root), cipher_hash: hx(cipherHash), k, n, blk: shards[0].blk,
@@ -151,7 +177,7 @@ export function checkpoint(state, secret, k, n, epoch = 1, { version = CURRENT_A
   const mHash = manifestHash(manifest); manifest.manifest_hash = hx(mHash);
   const meta = Buffer.alloc(10); meta.writeBigUInt64BE(BigInt(epoch), 0); meta.writeUInt8(k, 8); meta.writeUInt8(n, 9);
   const body = Buffer.concat([root, mHash, meta]);          // 32 + 32 + 10 = 74 bytes
-  const anchor = version === 1 ? Buffer.concat([Buffer.from([1]), body]) : body;
+  const anchor = version === 0 ? body : Buffer.concat([Buffer.from([version]), body]);   // v1/v2 prepend the version byte
   return { anchor, manifest, shards };
 }
 
@@ -159,10 +185,10 @@ export function checkpoint(state, secret, k, n, epoch = 1, { version = CURRENT_A
 export function resurrect(anchor, manifest, availableShards, secret) {
   if (!Buffer.isBuffer(anchor)) fc('anchor must be a Buffer');
   // detect wire version by length + leading byte; both v0 (74B) and v1 (75B) are accepted
-  let off;
-  if (anchor.length === ANCHOR_V1_LEN && anchor[0] === 1) off = 1;
-  else if (anchor.length === ANCHOR_V0_LEN) off = 0;
-  else fc(`unrecognized anchor (len ${anchor.length}; expected 74 v0 or 75 v1)`);
+  let off, ver;
+  if (anchor.length === ANCHOR_V1_LEN && (anchor[0] === 1 || anchor[0] === 2)) { off = 1; ver = anchor[0]; }
+  else if (anchor.length === ANCHOR_V0_LEN) { off = 0; ver = 0; }
+  else fc(`unrecognized anchor (len ${anchor.length}; expected 74 v0 or 75 v1/v2)`);
   const aRoot = anchor.subarray(off, off + 32), aMHash = anchor.subarray(off + 32, off + 64);
   const k = anchor.readUInt8(off + 72), n = anchor.readUInt8(off + 73);
   if (k < 1 || n < k || n > MAX_N) fc(`bad k/n in anchor (k=${k}, n=${n})`);
@@ -189,7 +215,10 @@ export function resurrect(anchor, manifest, availableShards, secret) {
   if (good.length < k) fc(`only ${good.length} valid shards, need ${k}`);
   let cipher; try { cipher = rsDecode(good, k); } catch (e) { fc('decode failed: ' + e.message); }
   if (!H(cipher).equals(Buffer.from(manifest.cipher_hash, 'hex'))) fc('cipher_hash mismatch');
-  let bytes; try { bytes = decryptState(cipher, secret); } catch { fc('decryption failed (wrong secret or tamper)'); }
+  const aEpoch = anchor.readBigUInt64BE(off + 64);   // authoritative epoch for the v2 deterministic nonce/AAD
+  let bytes;
+  try { bytes = ver === 2 ? decryptStateDet(cipher, secret, aEpoch, aRoot) : decryptState(cipher, secret); }
+  catch { fc('decryption failed (wrong secret or tamper)'); }
   if (!H(bytes).equals(aRoot)) fc('recovered state root != anchor');           // the final integrity gate
   const prefix = 'everark\0';
   if (bytes.subarray(0, prefix.length).toString('utf8') !== prefix) fc('canon prefix missing');

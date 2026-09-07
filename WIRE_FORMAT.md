@@ -22,6 +22,15 @@ offset  size  field
 Identical to v1 without the leading version byte (root at offset 0, k at 72, n at 73). Still accepted by
 `resurrect`; produced only with `checkpoint(..., { version: 0 })`. The first public testnet anchor is v0.
 
+### v2 (75 bytes) — deterministic AEAD, for replicated / self-checkpointing use (#9)
+Byte layout is identical to v1 (leading `0x02`, then the same body). The difference is the **encryption**:
+v0/v1 use random-nonce AES-256-GCM (each checkpoint differs run-to-run), while **v2 uses AES-256-GCM-SIV
+(RFC 8452) with a deterministic nonce = `sha256("everark-ckpt-v1" ‖ epoch(8 BE) ‖ root)[:12]` and AAD =
+`epoch(8 BE) ‖ root`**. So the same `(state, secret, k, n, epoch)` yields a byte-identical anchor + shards on
+every node — which a replicated HotPocket cluster needs to agree on one on-chain anchor. GCM-SIV is
+nonce-misuse-resistant: an accidental nonce repeat leaks only whether two checkpoints were byte-equal, never
+the catastrophic key recovery plain GCM suffers under nonce reuse. Produced with `checkpoint(..., { version: 2 })`.
+
 A reader MUST reject any other length, and reject a 75-byte anchor whose first byte is not `0x01`.
 
 ## Manifest (JSON)

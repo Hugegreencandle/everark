@@ -22,6 +22,7 @@
   "author": "Kairo Vault Technologies 合同会社",
   "license": "Apache-2.0",
   "dependencies": {
+    "@noble/ciphers": "^1.2.1",
     "hotpocket-js-client": "^0.5.7",
     "xahau": "^4.1.1"
   },

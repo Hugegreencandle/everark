@@ -21,7 +21,8 @@ const rootOf = (a) => (a.length === 75 ? a.subarray(1, 33) : a.subarray(0, 32));
 
 // Checkpoint the contract's own state into custody (anchor on-chain + shards to holders).
 export function checkpointSelf(state, custody, secret, { k = 3, n = 6, epoch } = {}) {
-  const { anchor, manifest, shards } = checkpoint(state, secret, k, n, epoch);
+  // version 2 = deterministic AEAD, so every node in the replicated cluster produces the identical anchor.
+  const { anchor, manifest, shards } = checkpoint(state, secret, k, n, epoch, { version: 2 });
   custody.putAnchor(anchor, manifest);
   for (const s of shards) custody.putShard(s.x, s.bytes);
   return { anchor, manifest, root: hx(rootOf(anchor)) };
